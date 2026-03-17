@@ -50,7 +50,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'token' => $token
+            'token' => $token,
             'expires_in' => auth('api')->factory()->getTTL() * 60,
         ]);
     }
@@ -78,15 +78,16 @@ class AuthController extends Controller
             return response()->json(['error' => 'Failed to fetch user profile'], 500);
         }
     }
-
     public function updateUser(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            $user->update($request->only(['name', 'email']));
-            return response()->json($user);
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Failed to update user'], 500);
-        }
-    }
+{
+    $user = Auth::user();
+
+    $request->validate([
+        'name'  => 'sometimes|string|max:255',
+        'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+    ]);
+
+    $user->update($request->only(['name', 'email']));
+    return response()->json($user);
+}
 }
