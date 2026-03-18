@@ -6,11 +6,13 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SeatController;
 use App\Http\Controllers\SessionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FilmController;
 
 Route::get('/', function () {
     return response()->json(['message' => 'Hello world!']);
 });
 
+Route::apiResource('films', FilmController::class);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 

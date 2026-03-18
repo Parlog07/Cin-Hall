@@ -2,65 +2,69 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreFilmRequest;
-use App\Http\Requests\UpdateFilmRequest;
 use App\Models\Film;
+use Illuminate\Http\Request;
 
 class FilmController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $films = Film::latest()->get();
+
+        return response()->json($films, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'genre' => 'nullable|string|max:255',
+            'actors' => 'nullable|string|max:255',
+            'duration_minutes' => 'required|integer|min:1',
+            'minimum_age' => 'required|integer|min:0',
+            'trailer_url' => 'required|url|max:255',
+        ]);
+
+        $film = Film::create($validated);
+
+        return response()->json([
+            'message' => 'Film created successfully',
+            'film' => $film,
+        ], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreFilmRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Film $film)
     {
-        //
+        return response()->json($film, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Film $film)
+    public function update(Request $request, Film $film)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'genre' => 'nullable|string|max:255',
+            'actors' => 'nullable|string|max:255',
+            'duration_minutes' => 'sometimes|required|integer|min:1',
+            'minimum_age' => 'sometimes|required|integer|min:0',
+            'trailer_url' => 'sometimes|required|url|max:255',
+        ]);
+
+        $film->update($validated);
+
+        return response()->json([
+            'message' => 'Film updated successfully',
+            'film' => $film,
+        ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateFilmRequest $request, Film $film)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Film $film)
     {
-        //
+        $film->delete();
+
+        return response()->json([
+            'message' => 'Film deleted successfully',
+        ], 200);
     }
 }
