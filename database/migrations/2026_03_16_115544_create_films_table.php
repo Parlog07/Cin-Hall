@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('films', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('genre')->nullable();
-            $table->string('actor')->default('abdelhakim');
-            $table->integer('duration_seconds');
-            $table->integer('min_age')->default(13);
-            $table->string('trailer_url')->nullable() ;
+            $table->string('actors')->nullable();
+            $table->integer('duration_minutes');
+            $table->integer('minimum_age')->default(13);
+            $table->string('age');
+            $table->string('trailer_url');
             $table->timestamps();
-           
             // remove nullable from image and trailer url plz
         });
     }

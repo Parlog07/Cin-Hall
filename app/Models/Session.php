@@ -12,7 +12,7 @@ class Session extends Model
 
 
     protected $table = 'room_sessions';  
-    protected $fillable = ['language', 'price', 'start_time', 'film_id', 'room_id'];
+    protected $fillable = ['language', 'price', 'start_time', 'type', 'film_id', 'room_id'];
 
     public function users()
     {

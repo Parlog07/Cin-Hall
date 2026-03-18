@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSessionRequest;
 use App\Http\Requests\UpdateSessionRequest;
 use App\Models\Session;
+use App\QueryBuilders\SessionQuery;
+use Illuminate\Http\Request;
 
 class SessionController extends Controller
 {
@@ -13,15 +15,15 @@ class SessionController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(Session::query()->get());
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(StoreSessionRequest $request)
     {
-        //
+
     }
 
     /**
@@ -29,7 +31,12 @@ class SessionController extends Controller
      */
     public function store(StoreSessionRequest $request)
     {
-        //
+        $session = Session::create($request->validated());
+
+        return response()->json([
+            'session' => $session,
+            'message' => 'Session created successfully',
+        ], 201);
     }
 
     /**
@@ -37,7 +44,7 @@ class SessionController extends Controller
      */
     public function show(Session $session)
     {
-        //
+        return response()->json($session);
     }
 
     /**
@@ -53,7 +60,12 @@ class SessionController extends Controller
      */
     public function update(UpdateSessionRequest $request, Session $session)
     {
-        //
+        $session->update($request->validated());
+
+        return response()->json([
+            'session' => $session->fresh(),
+            'message' => 'Session updated successfully',
+        ]);
     }
 
     /**
@@ -61,6 +73,19 @@ class SessionController extends Controller
      */
     public function destroy(Session $session)
     {
-        //
+        $session->delete();
+
+        return response()->json([
+            "message" => "Session deleted successfully",
+        ]);
+    }
+
+
+    public function filter(Request $request)
+    {
+        $type = $request->query('type');
+        $query = SessionQuery::applyFilters(SessionQuery::base(), $type);
+
+        return response()->json($query->get());
     }
 }

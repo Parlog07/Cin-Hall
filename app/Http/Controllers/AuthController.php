@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -29,7 +28,7 @@ class AuthController extends Controller
         try {
             $token = JWTAuth::fromUser($user);
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Could not create token'], 500);
+            return response()->json(['error' => 'Could not create token / ' . $e->getMessage()], 500);
         }
 
         return response()->json([
@@ -59,7 +58,7 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-            JWTAuth::invalidate(JWTAuth::getToken());
+            auth('api')->logout();
         } catch (JWTException $e) {
             return response()->json(['error' => 'Failed to logout, please try again'], 500);
         }
@@ -67,10 +66,10 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    public function getUser()
+    public function show()
     {
         try {
-            $user = Auth::user();
+            $user = auth('api')->user();
             if (!$user) {
                 return response()->json(['error' => 'User not found'], 404);
             }
@@ -79,16 +78,18 @@ class AuthController extends Controller
             return response()->json(['error' => 'Failed to fetch user profile'], 500);
         }
     }
-    public function updateUser(Request $request)
-{
-    $user = Auth::user();
 
-    $request->validate([
-        'name'  => 'sometimes|string|max:255',
-        'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-    ]);
+    
+    public function update(Request $request)
+    {
+        $user = auth('api')->user();
 
-    $user->update($request->only(['name', 'email']));
-    return response()->json($user);
-}
+        $request->validate([
+            'name'  => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($request->only(['name', 'email']));
+        return response()->json($user);
+    }
 }
