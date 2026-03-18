@@ -12,7 +12,7 @@ class UpdateSessionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,9 @@ class UpdateSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "language" => "required|string|max:255",
+            "price" => "required|float|min:10",
+            "start_time" => "required|date",
         ];
     }
 }

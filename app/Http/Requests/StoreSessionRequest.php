@@ -23,7 +23,11 @@ class StoreSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "language" => "required|string|max:255",
+            "price" => "required|float|min:10",
+            "start_time" => "required|date",
+            "film_id" => "required|exists:films.id",
+            "room_id" => "required|exists:rooms.id"
         ];
     }
 }
