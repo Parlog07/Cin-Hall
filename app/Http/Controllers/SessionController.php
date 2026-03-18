@@ -5,19 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSessionRequest;
 use App\Http\Requests\UpdateSessionRequest;
 use App\Models\Session;
-use App\Models\User;
 use App\QueryBuilders\SessionQuery;
 use Illuminate\Http\Request;
-
 
 class SessionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Session $session)
+    public function index()
     {
-        return  response()->json($session);
+        return response()->json(Session::query()->get());
     }
 
     /**
@@ -33,8 +31,12 @@ class SessionController extends Controller
      */
     public function store(StoreSessionRequest $request)
     {
-        $validate = $request->validated();
-        Session::create($validate);
+        $session = Session::create($request->validated());
+
+        return response()->json([
+            'session' => $session,
+            'message' => 'Session created successfully',
+        ], 201);
     }
 
     /**
@@ -58,13 +60,11 @@ class SessionController extends Controller
      */
     public function update(UpdateSessionRequest $request, Session $session)
     {
-
-        $validate = $request->validated();
-        $session->update($validate);
+        $session->update($request->validated());
 
         return response()->json([
-            "session" => $session,
-            "massage" => "Session created successfully"
+            'session' => $session->fresh(),
+            'message' => 'Session updated successfully',
         ]);
     }
 
@@ -81,10 +81,9 @@ class SessionController extends Controller
     }
 
 
-     public function filter(Request $request)
+    public function filter(Request $request)
     {
         $type = $request->query('type');
-
         $query = SessionQuery::applyFilters(SessionQuery::base(), $type);
 
         return response()->json($query->get());

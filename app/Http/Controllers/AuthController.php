@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -58,7 +57,7 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-            JWTAuth::invalidate(JWTAuth::getToken());
+            auth('api')->logout();
         } catch (JWTException $e) {
             return response()->json(['error' => 'Failed to logout, please try again'], 500);
         }
@@ -69,7 +68,7 @@ class AuthController extends Controller
     public function show()
     {
         try {
-            $user = Auth::user();
+            $user = auth('api')->user();
             if (!$user) {
                 return response()->json(['error' => 'User not found'], 404);
             }
@@ -82,7 +81,7 @@ class AuthController extends Controller
     
     public function update(Request $request)
     {
-        $user = Auth::user();
+        $user = auth('api')->user();
 
         $request->validate([
             'name'  => 'sometimes|string|max:255',
