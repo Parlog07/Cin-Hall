@@ -9,7 +9,7 @@ class Film extends Model
 {
     /** @use HasFactory<\Database\Factories\FilmFactory> */
     use HasFactory;
-    protected $fillable = ['title', 'description', 'genre', 'actor', 'duration_seconds', 'min_age', 'trailer_url'];
+    protected $fillable = ['title', 'description', 'genre', 'actors', 'duration_minutes', 'minimum_age', 'image', 'trailer_url'];
 
     public function rooms()
     {
