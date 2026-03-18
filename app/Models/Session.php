@@ -21,4 +21,6 @@ class Session extends Model
             ->withPivot(["status", "expires_at", "total_price"])
             ->withTimestamps();
     }
+
+    
 }
