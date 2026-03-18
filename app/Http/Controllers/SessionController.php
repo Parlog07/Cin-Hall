@@ -5,23 +5,27 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSessionRequest;
 use App\Http\Requests\UpdateSessionRequest;
 use App\Models\Session;
+use App\Models\User;
+use App\QueryBuilders\SessionQuery;
+use Illuminate\Http\Request;
+
 
 class SessionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Session $session)
     {
-        //
+        return  response()->json($session);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(StoreSessionRequest $request)
     {
-        //
+
     }
 
     /**
@@ -29,7 +33,8 @@ class SessionController extends Controller
      */
     public function store(StoreSessionRequest $request)
     {
-        //
+        $validate = $request->validated();
+        Session::create($validate);
     }
 
     /**
@@ -37,7 +42,7 @@ class SessionController extends Controller
      */
     public function show(Session $session)
     {
-        //
+        return response()->json($session);
     }
 
     /**
@@ -53,7 +58,14 @@ class SessionController extends Controller
      */
     public function update(UpdateSessionRequest $request, Session $session)
     {
-        //
+
+        $validate = $request->validated();
+        $session->update($validate);
+
+        return response()->json([
+            "session" => $session,
+            "massage" => "Session created successfully"
+        ]);
     }
 
     /**
@@ -61,6 +73,20 @@ class SessionController extends Controller
      */
     public function destroy(Session $session)
     {
-        //
+        $session->delete();
+
+        return response()->json([
+            "message" => "Session deleted successfully",
+        ]);
+    }
+
+
+     public function filter(Request $request)
+    {
+        $type = $request->query('type');
+
+        $query = SessionQuery::applyFilters(SessionQuery::base(), $type);
+
+        return response()->json($query->get());
     }
 }
