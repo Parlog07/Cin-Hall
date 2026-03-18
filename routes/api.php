@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\SeatController;
 use App\Http\Controllers\SessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +24,13 @@ Route::middleware('jwt')->group(function () {
         Route::apiResource('sessions', SessionController::class);
     });
 });
+
+
+//create the Room
+Route::post('/rooms', [RoomController::class, 'store']);
+
+//Voir les sièges réservés en temps réel
+Route::get('/sessions/{session}/seats', [SeatController::class, 'getSeatsBySession']);
+
+//Réserver un siège
+Route::post('/reservations', [ReservationController::class, 'store']);
