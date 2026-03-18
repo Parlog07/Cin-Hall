@@ -23,9 +23,12 @@ class UpdateSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "language" => "required|string|max:255",
-            "price" => "required|float|min:10",
-            "start_time" => "required|date",
+            'language' => 'sometimes|string|max:255',
+            'price' => 'sometimes|numeric|min:10',
+            'start_time' => 'sometimes|date',
+            'type' => 'sometimes|in:normal,VIP',
+            'film_id' => 'sometimes|exists:films,id',
+            'room_id' => 'sometimes|exists:rooms,id',
         ];
     }
 }

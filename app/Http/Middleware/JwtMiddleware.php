@@ -3,14 +3,10 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-namespace App\Http\Middleware;
-
-use Closure;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class JwtMiddleware
 {
@@ -19,14 +15,16 @@ class JwtMiddleware
      *
      * @param  Closure(Request): (Response)  $next
      */
-   
-
-    
-
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         try {
-            JWTAuth::parseToken()->authenticate();
+            $user = JWTAuth::parseToken()->authenticate();
+
+            if (! $user) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            auth('api')->setUser($user);
         } catch (Exception $e) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
@@ -34,7 +32,3 @@ class JwtMiddleware
         return $next($request);
     }
 }
-
-
-
-
