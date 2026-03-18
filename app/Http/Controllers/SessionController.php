@@ -6,8 +6,9 @@ use App\Http\Requests\StoreSessionRequest;
 use App\Http\Requests\UpdateSessionRequest;
 use App\Models\Session;
 use App\Models\User;
+use App\QueryBuilders\SessionQuery;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
+
 
 class SessionController extends Controller
 {
@@ -77,5 +78,15 @@ class SessionController extends Controller
         return response()->json([
             "message" => "Session deleted successfully",
         ]);
+    }
+
+
+     public function filter(Request $request)
+    {
+        $type = $request->query('type');
+
+        $query = SessionQuery::applyFilters(SessionQuery::base(), $type);
+
+        return response()->json($query->get());
     }
 }
