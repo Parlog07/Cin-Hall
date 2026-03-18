@@ -22,15 +22,15 @@ Route::middleware('jwt')->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/sessions/filter', [SessionController::class, 'filter']);
         Route::apiResource('sessions', SessionController::class);
+        
+        //create the Room
+        Route::post('/rooms', [RoomController::class, 'store']);
+        
+        //Voir les sièges réservés en temps réel
+        Route::get('/sessions/{session}/seats', [SeatController::class, 'getSeatsBySession']);
+        
+        //Réserver un siège
+        Route::post('/reservations', [ReservationController::class, 'store']);
     });
 });
 
-
-//create the Room
-Route::post('/rooms', [RoomController::class, 'store']);
-
-//Voir les sièges réservés en temps réel
-Route::get('/sessions/{session}/seats', [SeatController::class, 'getSeatsBySession']);
-
-//Réserver un siège
-Route::post('/reservations', [ReservationController::class, 'store']);
