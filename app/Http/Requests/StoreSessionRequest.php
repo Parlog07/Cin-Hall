@@ -12,7 +12,7 @@ class StoreSessionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,12 @@ class StoreSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'language' => 'required|string|max:255',
+            'price' => 'required|numeric|min:10',
+            'start_time' => 'required|date',
+            'type' => 'sometimes|in:normal,VIP',
+            'film_id' => 'required|exists:films,id',
+            'room_id' => 'required|exists:rooms,id',
         ];
     }
 }

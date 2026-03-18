@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('language')->default('ta3rabt');
             $table->integer('price')->default(100);
             $table->timestamp('start_time');
+            $table->enum('type' , ['normal' , 'VIP'])->default('normal');
 
             $table->foreignId('film_id')->constrained('films')->nullOnDelete() ;
             $table->foreignId('room_id')->constrained('rooms')->nullOnDelete() ;
