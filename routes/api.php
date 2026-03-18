@@ -15,7 +15,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('jwt')->group(function () {
-    Route::get('/user', [AuthController::class, 'getUser']);
-    Route::put('/user', [AuthController::class, 'updateUser']);
+    Route::get('/user', [AuthController::class, 'show']);
+    Route::put('/user', [AuthController::class, 'update']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });

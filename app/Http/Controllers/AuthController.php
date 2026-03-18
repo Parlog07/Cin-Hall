@@ -28,7 +28,7 @@ class AuthController extends Controller
         try {
             $token = JWTAuth::fromUser($user);
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Could not create token'], 500);
+            return response()->json(['error' => 'Could not create token / ' . $e->getMessage()], 500);
         }
 
         return response()->json([
@@ -66,7 +66,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    public function getUser()
+    public function show()
     {
         try {
             $user = Auth::user();
@@ -78,16 +78,18 @@ class AuthController extends Controller
             return response()->json(['error' => 'Failed to fetch user profile'], 500);
         }
     }
-    public function updateUser(Request $request)
-{
-    $user = Auth::user();
 
-    $request->validate([
-        'name'  => 'sometimes|string|max:255',
-        'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-    ]);
+    
+    public function update(Request $request)
+    {
+        $user = Auth::user();
 
-    $user->update($request->only(['name', 'email']));
-    return response()->json($user);
-}
+        $request->validate([
+            'name'  => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($request->only(['name', 'email']));
+        return response()->json($user);
+    }
 }
