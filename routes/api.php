@@ -7,14 +7,17 @@ use App\Http\Controllers\SeatController;
 use App\Http\Controllers\SessionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FilmController;
+use Illuminate\Http\Request;
 
-Route::get('/', function () {
-    return response()->json(['message' => 'Hello world!']);
+Route::get('/', function (Request $request) {
+    return response()->json('hellow world');
 });
 
-Route::apiResource('films', FilmController::class);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('films', [FilmController::class, 'index']);
+Route::get('films/{film}', [FilmController::class, 'show']);
 
 Route::middleware('jwt')->group(function () {
     Route::get('/user', [AuthController::class, 'show']);
@@ -22,6 +25,10 @@ Route::middleware('jwt')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::middleware('admin')->group(function () {
+        Route::post('films', [FilmController::class, 'store']);
+        Route::put('films/{film}', [FilmController::class, 'update']);
+        Route::delete('films/{film}', [FilmController::class, 'destroy']);
+
         Route::get('/sessions/filter', [SessionController::class, 'filter']);
         Route::apiResource('sessions', SessionController::class);
     });
