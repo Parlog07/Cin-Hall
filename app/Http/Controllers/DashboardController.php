@@ -25,7 +25,7 @@ class DashboardController extends Controller
             ->join('rooms', 'room_sessions.room_id', '=', 'rooms.id')
             ->select(
                 'room_sessions.id as session_id',
-                'rooms.total_seats',
+                'rooms.capacity',
                 DB::raw("(SELECT COUNT(*) FROM reservation_seat 
                   JOIN reservations ON reservation_seat.reservation_id = reservations.id 
                   WHERE reservations.room_session_id = room_sessions.id) as reserved_seats")
@@ -33,7 +33,7 @@ class DashboardController extends Controller
             ->get();
 
         foreach ($sessions as $session) {
-            $total = $session->total_seats ?: 1;
+            $total = $session->capacity ?: 1;
             $session->occupation_percentage = round(($session->reserved_seats * 100) / $total, 2);
         }
 
@@ -46,8 +46,8 @@ class DashboardController extends Controller
 
                 DB::raw('COALESCE(SUM(reservations.total_price), 0) as total_revenue'),
 
-                DB::raw("(SELECT COUNT(*) FROM Ticket 
-                  JOIN reservations AS r ON Ticket.reservation_id = r.id 
+                DB::raw("(SELECT COUNT(*) FROM tickets 
+                  JOIN reservations AS r ON tickets.resevation_id = r.id 
                   JOIN room_sessions AS rs ON r.room_session_id = rs.id 
                   WHERE rs.film_id = films.id) as total_ticket")
             )
