@@ -9,6 +9,7 @@ use App\Http\Controllers\SessionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FilmController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\PaymentController;
 
 Route::get('/', function (Request $request) {
     return response()->json('hellow world');
@@ -21,12 +22,15 @@ Route::get('films', [FilmController::class, 'index']);
 Route::get('films/{film}', [FilmController::class, 'show']);
 
 Route::middleware('jwt')->group(function () {
-
+    
     Route::get('/dashboard', [DashboardController::class, 'show'])->middleware('admin');
     Route::get('/user', [AuthController::class, 'show']);
     Route::put('/user', [AuthController::class, 'update']);
     Route::post('/logout', [AuthController::class, 'logout']);
-
+    
+    Route::post('/payments', [PaymentController::class, 'store']);
+    Route::get('/payments/{payment}', [PaymentController::class, 'show']);
+    
     Route::middleware('admin')->group(function () {
         Route::post('films', [FilmController::class, 'store']);
         Route::put('films/{film}', [FilmController::class, 'update']);
