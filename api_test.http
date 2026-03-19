@@ -1,0 +1,145 @@
+# REST Client tests for auth and admin-only session CRUD
+# Start Laravel first, for example: php artisan serve
+
+@baseUrl = http://127.0.0.1:8000/api
+
+# Normal user credentials
+@userName = Abdo
+@userEmail = user@example.com
+@userPassword = abdo123
+
+
+@userToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzczOTMwMjc0LCJleHAiOjE3NzM5MzM4NzQsIm5iZiI6MTc3MzkzMDI3NCwianRpIjoianpGdFJjZUM3emhySVo0MSIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.e2XheXRObQw4h5akRwTgmH3pAQCShJd7LDZqlrG5__o
+# Admin credentials
+# The admin account must already exist in the database with is_admin = 1
+@adminEmail = user@example.com
+@adminPassword = abdo123
+
+@adminToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzczOTMwNTI0LCJleHAiOjE3NzM5MzQxMjQsIm5iZiI6MTc3MzkzMDUyNCwianRpIjoieEllNUtObGNlWkdrYzNjbyIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.YxrQ9Q1tjdlESpjGiMbEAyjcSrP9dCOAIrBFQWsb_Yw
+
+# Existing related records required by session creation
+@filmId = 1
+@roomId = 1
+
+###
+# Health check
+GET {{baseUrl}}/
+
+###
+# Register a normal user
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "{{userName}}",
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}",
+  "password_confirmation": "{{userPassword}}"
+}
+
+###
+# Login as normal user
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+
+###
+# Get current normal user
+GET {{baseUrl}}/user
+Authorization: Bearer {{userToken}}
+
+###
+# Update current normal user
+PUT {{baseUrl}}/user
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated Rest Client User"
+}
+
+###
+# Non-admin should be forbidden from listing sessions
+GET {{baseUrl}}/sessions
+Authorization: Bearer {{userToken}}
+
+###
+# Login as admin
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+
+###
+# Get current admin user
+GET {{baseUrl}}/user
+Authorization: Bearer {{adminToken}}
+
+###
+# List sessions as admin
+GET {{baseUrl}}/sessions
+Authorization: Bearer {{adminToken}}
+
+###
+# Filter sessions by type
+GET {{baseUrl}}/sessions/filter?type=normal
+Authorization: Bearer {{adminToken}}
+
+###
+# Create session as admin
+POST {{baseUrl}}/sessions
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "language": "English",
+  "price": 120,
+  "start_time": "2026-03-20 20:00:00",
+  "type": "VIP",
+  "film_id": {{filmId}},
+  "room_id": {{roomId}}
+}
+
+
+
+
+###
+# Show created session
+GET {{baseUrl}}/sessions/2
+Authorization: Bearer {{adminToken}}
+
+###
+# Update created session
+PUT {{baseUrl}}/sessions/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "language": "French",
+  "price": 150,
+  "type": "normal"
+}
+
+###
+# Delete created session
+DELETE {{baseUrl}}/sessions/1
+Authorization: Bearer {{adminToken}}
+
+###
+# Logout admin
+POST {{baseUrl}}/logout
+Authorization: Bearer {{adminToken}}
+
+###
+# Logout normal user
+POST {{baseUrl}}/logout
+Authorization: Bearer {{userToken}}
