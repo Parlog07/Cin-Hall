@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
 use App\Models\Reservation;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
 {
@@ -29,7 +31,21 @@ class ReservationController extends Controller
      */
     public function store(StoreReservationRequest $request)
     {
-        //
+        $reservation = Reservation::create([
+            'room_session_id' => $request->room_session_id,
+            'user_id' => Auth::user()->id,
+            'status' => 'pending',
+            'expires_at' => Carbon::now()->addMinutes(15),
+            'total_price' => $request->total_price
+        ]);
+
+        // lier les sièges
+        $reservation->seats()->attach($request->seat_ids);
+
+        return response()->json([
+            'message' => 'Reservation created',
+            'data' => $reservation
+        ]);
     }
 
     /**
