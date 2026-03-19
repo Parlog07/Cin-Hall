@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SeatController;
@@ -20,6 +21,8 @@ Route::get('films', [FilmController::class, 'index']);
 Route::get('films/{film}', [FilmController::class, 'show']);
 
 Route::middleware('jwt')->group(function () {
+
+    Route::get('/dashboard', [DashboardController::class, 'show'])->middleware('admin');
     Route::get('/user', [AuthController::class, 'show']);
     Route::put('/user', [AuthController::class, 'update']);
     Route::post('/logout', [AuthController::class, 'logout']);
