@@ -5,17 +5,18 @@
 
 # Normal user credentials
 @userName = Abdo
-@userEmail = abdo@example.com
+@userEmail = user@example.com
 @userPassword = abdo123
 
-@userToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzczODM0MjEyLCJleHAiOjE3NzM4Mzc4MTIsIm5iZiI6MTc3MzgzNDIxMiwianRpIjoiNnk4ZW5pdzd5cHp6VnA1byIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.FV5tMUwypPYQ4dCvdLX6177IjsrGGUmhJUXqn_iaE-c
+
+@userToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzczOTMwMjc0LCJleHAiOjE3NzM5MzM4NzQsIm5iZiI6MTc3MzkzMDI3NCwianRpIjoianpGdFJjZUM3emhySVo0MSIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.e2XheXRObQw4h5akRwTgmH3pAQCShJd7LDZqlrG5__o
 # Admin credentials
 # The admin account must already exist in the database with is_admin = 1
-@adminEmail = abdo@example.com
+@adminEmail = user@example.com
 @adminPassword = abdo123
 
+@adminToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzczOTMwNTI0LCJleHAiOjE3NzM5MzQxMjQsIm5iZiI6MTc3MzkzMDUyNCwianRpIjoieEllNUtObGNlWkdrYzNjbyIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.YxrQ9Q1tjdlESpjGiMbEAyjcSrP9dCOAIrBFQWsb_Yw
 
-@adminToken = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzczODM1MjMwLCJleHAiOjE3NzM4Mzg4MzAsIm5iZiI6MTc3MzgzNTIzMCwianRpIjoiTW5wVGJab0RQSHFvWmJlciIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.WEckXM8q1mKJCglS4oR_u9hMjw84IaFA3XD5Xe4xh3w
 # Existing related records required by session creation
 @filmId = 1
 @roomId = 1
@@ -38,7 +39,6 @@ Content-Type: application/json
 
 ###
 # Login as normal user
-# Saves {{userToken}}
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -70,7 +70,6 @@ Authorization: Bearer {{userToken}}
 
 ###
 # Login as admin
-# Saves {{adminToken}}
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -92,12 +91,11 @@ Authorization: Bearer {{adminToken}}
 
 ###
 # Filter sessions by type
-GET {{baseUrl}}/sessions/filter?type=VIP
+GET {{baseUrl}}/sessions/filter?type=normal
 Authorization: Bearer {{adminToken}}
 
 ###
 # Create session as admin
-# Saves {{sessionId}}
 POST {{baseUrl}}/sessions
 Authorization: Bearer {{adminToken}}
 Content-Type: application/json
@@ -113,14 +111,15 @@ Content-Type: application/json
 
 
 
+
 ###
 # Show created session
-GET {{baseUrl}}/sessions
+GET {{baseUrl}}/sessions/2
 Authorization: Bearer {{adminToken}}
 
 ###
 # Update created session
-PUT {{baseUrl}}/sessions
+PUT {{baseUrl}}/sessions/1
 Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
