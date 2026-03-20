@@ -1,66 +1,167 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Ticket</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 text-gray-800">
-    <div class="max-w-3xl mx-auto p-6 bg-white shadow rounded-lg">
-        
-        <h1 class="text-2xl font-bold mb-4 text-center">🎟️ Movie Ticket</h1>
+<style>
+    :root {
+        --ticket-bg: #ffffff;
+        --accent: #e50914; /* Netflix Red */
+        --text-main: #222;
+        --text-muted: #777;
+        --border-color: #ddd;
+    }
 
-        <!-- Film Info -->
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold border-b pb-2 mb-2">Film</h2>
-            <p><strong>Title:</strong> {{ $film['title'] }}</p>
-            <p><strong>Description:</strong> {{ $film['description'] }}</p>
-            <p><strong>Genre:</strong> {{ $film['genre'] }}</p>
-            <p><strong>Actors:</strong> {{ $film['actors'] }}</p>
-            <p><strong>Duration:</strong> {{ $film['duration_minutes'] }} min</p>
-            <p><strong>Minimum Age:</strong> {{ $film['minimum_age'] }}+</p>
-            <p><strong>Trailer:</strong> {{ $film['trailer_url'] }}</p>
-        </div>
+    body {
+        background-color: #ffffff; /* Removed the black space */
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+        margin: 0;
+    }
 
-        <!-- Session Info -->
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold border-b pb-2 mb-2">Session</h2>
-            <p><strong>Language:</strong> {{ $session['language'] }}</p>
-            <p><strong>Type:</strong> {{ $session['type'] }}</p>
-            <p><strong>Price:</strong> {{ $session['price'] }}</p>
-            <p><strong>Start Time:</strong> {{ $session['start_time'] }}</p>
-        </div>
+    .ticket-container {
+        width: 100%;
+        max-width: 400px;
+        background: var(--ticket-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        border: 1px solid var(--border-color); /* Added border */
+        position: relative;
+    }
 
-        <!-- Room Info -->
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold border-b pb-2 mb-2">Room</h2>
-            <p><strong>Name:</strong> {{ $room['name'] }}</p>
-            <p><strong>Type:</strong> {{ $room['type'] }}</p>
-            <p><strong>Capacity:</strong> {{ $room['capacity'] }}</p>
-        </div>
+    /* Cinematic Header */
+    .header {
+        background: var(--accent);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
 
-        <!-- Seat Info -->
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold border-b pb-2 mb-2">Seat</h2>
-            <p><strong>Number:</strong> {{ $seat['number'] }}</p>
-            <p><strong>Type:</strong> {{ $seat['type'] }}</p>
-            <p><strong>Room ID:</strong> {{ $seat['room_id'] }}</p>
-        </div>
+    .header h1 {
+        margin: 0;
+        font-size: 24px;
+    }
 
-        <!-- Reservation Info -->
-        <div>
-            <h2 class="text-xl font-semibold border-b pb-2 mb-2">Reservation</h2>
-            <p><strong>Status:</strong> {{ $reservation['status'] }}</p>
-            <p><strong>Expires At:</strong> {{ $reservation['expires_at'] }}</p>
-            <p><strong>Total Price:</strong> {{ $reservation['total_price'] }}</p>
-            <p><strong>Room Session ID:</strong> {{ $reservation['room_session_id'] }}</p>
-            <p><strong>User ID:</strong> {{ $reservation['user_id'] }}</p>
-        </div>
+    /* Main Film Info */
+    .film-section {
+        padding: 20px;
+        border-bottom: 2px dashed #ddd;
+        text-align: center;
+    }
 
-        <div class="mt-6 text-center text-sm text-gray-500">
-            Generated at {{ now() }}
-        </div>
+    .film-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin: 0 0 5px 0;
+        color: var(--text-main);
+    }
 
+    .film-meta {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+    }
+
+    /* Grid Layout for Details */
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 20px;
+        background: #fdfdfd;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .label {
+        font-size: 10px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+
+    .value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    /* QR Code Section */
+    .qr-section {
+        padding: 20px;
+        text-align: center;
+        background: white;
+        border-top: 1px solid #eee;
+    }
+
+    .qr-code-img {
+        width: 140px;
+        height: 140px;
+        object-fit: contain;
+    }
+
+    .price-tag {
+        font-size: 22px;
+        color: var(--accent);
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    .footer {
+        font-size: 9px;
+        color: #bbb;
+        padding: 15px;
+        text-align: center;
+    }
+</style>
+
+<div class="ticket-container">
+    <div class="header">
+        <h1>Movie Ticket</h1>
     </div>
-</body>
-</html>
+
+    <div class="film-section">
+        <p class="film-meta">{{ $film['genre'] }} • {{ $film['duration_minutes'] }} min</p>
+        <h2 class="film-title">{{ $film['title'] }}</h2>
+        <p style="font-size: 11px; color: #666;">{{ $film['description'] }}</p>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <span class="label">Date & Time</span>
+            <span class="value">{{ $session['start_time'] }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="label">Room</span>
+            <span class="value">{{ $room['name'] }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="label">Seat</span>
+            <span class="value">{{ $seat['number'] }} ({{ $seat['type'] }})</span>
+        </div>
+        <div class="detail-item">
+            <span class="label">Status</span>
+            <span class="value">{{ $reservation['status'] }}</span>
+        </div>
+    </div>
+
+    <div class="qr-section">
+        {{-- QR Code Logic --}}
+        @if(!empty($qr_code_path))
+            <img src="{{ asset('storage/' . $qr_code_path) }}" 
+                 alt="QR Code" 
+                 class="qr-code-img"
+                 onerror="this.style.display='none';">
+        @endif
+        
+        <div class="label" style="margin-top:10px;">Total Paid</div>
+        <div class="price-tag">${{ $reservation['total_price'] }}</div>
+    </div>
+
+    <div class="footer">
+        Order ID: {{ $reservation['user_id'] }}-{{ $reservation['room_session_id'] }}<br>
+        Generated at {{ now() }}
+    </div>
+</div>

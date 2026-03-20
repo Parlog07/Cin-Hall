@@ -9,7 +9,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Spatie\LaravelPdf\Facades\Pdf;
+
+// use Spatie\LaravelPdf\Facades\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PaymentController extends Controller
 {
@@ -36,21 +38,21 @@ class PaymentController extends Controller
             ], 403);
         }
 
-        // if ($reservation->status !== 'pending') {
-        //     return response()->json([
-        //         'message' => 'This reservation cannot be paid.',
-        //     ], 422);
-        // }
+        if ($reservation->status !== 'pending') {
+            return response()->json([
+                'message' => 'This reservation cannot be paid.',
+            ], 422);
+        }
 
-        // if (Carbon::now()->greaterThan($reservation->expires_at)) {
-        //     $reservation->update([
-        //         'status' => 'expired',
-        //     ]);
+        if (Carbon::now()->greaterThan($reservation->expires_at)) {
+            $reservation->update([
+                'status' => 'expired',
+            ]);
 
-        //     return response()->json([
-        //         'message' => 'This reservation has expired.',
-        //     ], 422);
-        // }
+            return response()->json([
+                'message' => 'This reservation has expired.',
+            ], 422);
+        }
 
         if ((float) $validated['amount'] !== (float) $reservation->total_price) {
             return response()->json([
@@ -136,9 +138,25 @@ class PaymentController extends Controller
                 // $template = view('Pdf.ticket', compact('reservation', 'session', 'seat', 'room', 'film'))->render() ;
                 // Browsershot::html($template)->disk('public')->save($filePath);
 
+                // therd try
+
+                // Pdf::view('Pdf.ticket', compact('reservation', 'seat', 'session', 'room', 'film'))
+                //     ->withBrowsershot(function ($browsershot) {
+                //         $browsershot
+                //             ->setChromePath('/usr/bin/chromium-browser') // use the snap-less path
+                //             ->noSandbox();
+                //     })
+                //     ->disk('public')
+                //     ->save($filePath);
+
+                // 4th try
+
+                $pdf = Pdf::loadView('Pdf.ticket', compact('reservation', 'seat', 'session', 'room', 'film'));
+                $pdf->save(storage_path('app/public/' . $filePath));
+
 
                 Ticket::create([
-                    // 'qr_code' => '...',
+                    'qr_code' => '...',
                     'pdf_path' => $filePath,
                     'reservation_id' => $reservation->id,
                     'payment_id' => $reservation->payment?->id
