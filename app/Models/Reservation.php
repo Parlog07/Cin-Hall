@@ -27,4 +27,14 @@ class Reservation extends Model
     {
         return $this->hasOne(Ticket::class);
     }
+
+    public function session()
+    {
+        return $this->belongsTo(Session::class, 'room_session_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

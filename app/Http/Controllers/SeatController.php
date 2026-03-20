@@ -13,7 +13,8 @@ class SeatController extends Controller
      */
     public function index()
     {
-        //
+        $seats = Seat::all();
+        return response()->json(['data' => $seats], 200);
     }
 
     /**
@@ -66,17 +67,21 @@ class SeatController extends Controller
 
     public function getSeatsBySession($sessionId)
     {
-        $seats = Seat::with(['reservations' => function($query) use ($sessionId) {
+        $seats = Seat::with(['reservations' => function ($query) use ($sessionId) {
             $query->where('room_session_id', $sessionId)
-            ->whereIn('status', ['pending', 'paid']);
+                ->whereIn('status', ['pending', 'paid']);
         }])->get();
 
-        $seats = $seats->map(function ($seat){
+        $seats = $seats->map(function ($seat) {
             return [
-                'id', $seat->id,
-                'number', $seat->number,
-                'type', $seat->type,
-                'status', $seat->reservations->count() > 0 ? 'reserved' : 'available',
+                'id',
+                $seat->id,
+                'number',
+                $seat->number,
+                'type',
+                $seat->type,
+                'status',
+                $seat->reservations->count() > 0 ? 'reserved' : 'available',
             ];
         });
         return response()->json($seats);
