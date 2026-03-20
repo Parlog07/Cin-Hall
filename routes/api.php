@@ -22,31 +22,43 @@ Route::get('films', [FilmController::class, 'index']);
 Route::get('films/{film}', [FilmController::class, 'show']);
 
 Route::middleware('jwt')->group(function () {
-    
+
     Route::get('/dashboard', [DashboardController::class, 'show'])->middleware('admin');
     Route::get('/user', [AuthController::class, 'show']);
     Route::put('/user', [AuthController::class, 'update']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+
+    Route::get('/payments', [PaymentController::class, 'index']);
     Route::post('/payments', [PaymentController::class, 'store']);
     Route::get('/payments/{payment}', [PaymentController::class, 'show']);
     
+    // testing ...
+    Route::apiResource('seats', SeatController::class);
+
+    // ...
+
+
     Route::middleware('admin')->group(function () {
         Route::post('films', [FilmController::class, 'store']);
         Route::put('films/{film}', [FilmController::class, 'update']);
         Route::delete('films/{film}', [FilmController::class, 'destroy']);
 
         Route::get('/sessions/filter', [SessionController::class, 'filter']);
+        });
         Route::apiResource('sessions', SessionController::class);
-    });
+
+
+
 });
 
 
 //create the Room
+Route::get('/rooms', [RoomController::class, 'index']);
 Route::post('/rooms', [RoomController::class, 'store']);
 
 //Voir les sièges réservés en temps réel
 Route::get('/sessions/{session}/seats', [SeatController::class, 'getSeatsBySession']);
 
 //Réserver un siège
+Route::get('/reservations', [ReservationController::class, 'index']);
 Route::post('/reservations', [ReservationController::class, 'store']);

@@ -4,13 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Reservation;
+use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 class PaymentController extends Controller
 {
+
+    public function index()
+    {
+        $payments = Payment::all();
+        return response()->json(['data' => $payments]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -27,21 +36,21 @@ class PaymentController extends Controller
             ], 403);
         }
 
-        if ($reservation->status !== 'pending') {
-            return response()->json([
-                'message' => 'This reservation cannot be paid.',
-            ], 422);
-        }
+        // if ($reservation->status !== 'pending') {
+        //     return response()->json([
+        //         'message' => 'This reservation cannot be paid.',
+        //     ], 422);
+        // }
 
-        if (Carbon::now()->greaterThan($reservation->expires_at)) {
-            $reservation->update([
-                'status' => 'expired',
-            ]);
+        // if (Carbon::now()->greaterThan($reservation->expires_at)) {
+        //     $reservation->update([
+        //         'status' => 'expired',
+        //     ]);
 
-            return response()->json([
-                'message' => 'This reservation has expired.',
-            ], 422);
-        }
+        //     return response()->json([
+        //         'message' => 'This reservation has expired.',
+        //     ], 422);
+        // }
 
         if ((float) $validated['amount'] !== (float) $reservation->total_price) {
             return response()->json([
@@ -74,6 +83,8 @@ class PaymentController extends Controller
             return $payment;
         });
 
+        $this->createTickets($reservation);
+
         return response()->json([
             'message' => 'Payment completed successfully.',
             'payment' => $payment,
@@ -96,5 +107,42 @@ class PaymentController extends Controller
         }
 
         return response()->json($payment, 200);
+    }
+
+
+
+    public function createTickets(Reservation $reservation)
+    {
+        if ($reservation->status == "paid")
+            foreach ($reservation->seats as $seat) {
+
+                $session = $reservation->session;
+                $room = $session?->room;
+                $film = $session?->film;
+
+                $fileName = 'ticket_' . $reservation->id . '_' . $seat->id . '.pdf';
+                $filePath = 'pdf/' . $fileName;
+
+                //fisrt try
+
+                // Pdf::view('Pdf.ticket', compact('reservation', 'session', 'seat', 'room', 'film'))
+                //     ->withBrowsershot(function ($browsershot) {
+                //         $browsershot->noSandbox();
+                //     })->disk('public')
+                //     ->save($filePath);
+
+                //second try
+
+                // $template = view('Pdf.ticket', compact('reservation', 'session', 'seat', 'room', 'film'))->render() ;
+                // Browsershot::html($template)->disk('public')->save($filePath);
+
+
+                Ticket::create([
+                    // 'qr_code' => '...',
+                    'pdf_path' => $filePath,
+                    'reservation_id' => $reservation->id,
+                    'payment_id' => $reservation->payment?->id
+                ]);
+            }
     }
 }

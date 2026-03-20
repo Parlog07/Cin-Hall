@@ -18,7 +18,13 @@ class FilmFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            "title" => "filme dyal afsi",
+            "description" => "the worst film ",
+            "genre" => "deprition",
+            "actors" => "me => the victim",
+            "duration_minutes" => 2000,
+            "minimum_age" => 30,
+            "trailer_url" => "https://youtu.be/90UWkHE0Nkc?si=dNIJTt3KAThhZDYc"
         ];
     }
 }
