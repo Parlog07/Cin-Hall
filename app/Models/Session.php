@@ -21,4 +21,16 @@ class Session extends Model
             ->withPivot(["status", "expires_at", "total_price"])
             ->withTimestamps();
     }
+
+    public function room(){
+        return $this->belongsTo(Room::class , 'room_id') ;
+    }
+
+    public function film(){
+        return $this->belongsTo(Film::class , 'film_id') ;
+    }
+
+    
+
+    
 }

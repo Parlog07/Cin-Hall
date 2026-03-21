@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Room;
+use App\Models\Session;
 
 class Film extends Model
 {
     /** @use HasFactory<\Database\Factories\FilmFactory> */
     use HasFactory;
-    protected $fillable = ['title', 'description', 'genre', 'actor', 'duration_seconds', 'min_age', 'trailer_url'];
+    protected $fillable = ['title', 'description', 'genre', 'actors', 'duration_minutes', 'minimum_age', 'trailer_url'];
 
     public function rooms()
     {

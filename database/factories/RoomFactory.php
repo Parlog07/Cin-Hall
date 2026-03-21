@@ -18,7 +18,9 @@ class RoomFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->name() ,
+            'type' => 'normal' ,
+            'capacity' => 15
         ];
     }
 }

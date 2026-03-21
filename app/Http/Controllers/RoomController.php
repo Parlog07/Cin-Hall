@@ -13,7 +13,8 @@ class RoomController extends Controller
      */
     public function index()
     {
-        //
+        $rooms = Room::all() ;
+        return response()->json(['data' => $rooms], 200);
     }
 
     /**
@@ -29,7 +30,19 @@ class RoomController extends Controller
      */
     public function store(StoreRoomRequest $request)
     {
-        //
+        $room = Room::create($request->validated());
+
+        // creation des siege automatique
+        for ($i=1; $i <= $room->capacity; $i++) { 
+            $room->seats()->create([
+                'number' => $i,
+                'type' => $room->type === 'VIP' ? 'VIP' : 'normal'
+            ]);
+        }
+        return response()->json([
+            'message'=> 'Room created successfully',
+            'data' => $room
+        ]);
     }
 
     /**

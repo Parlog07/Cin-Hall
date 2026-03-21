@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
+use App\Models\Payment;
 use App\Models\Reservation;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
 {
@@ -13,7 +16,8 @@ class ReservationController extends Controller
      */
     public function index()
     {
-        //
+        $reservations = Reservation::all() ;
+        return response()->json(['data' => $reservations] , 200) ;
     }
 
     /**
@@ -29,7 +33,21 @@ class ReservationController extends Controller
      */
     public function store(StoreReservationRequest $request)
     {
-        //
+        $reservation = Reservation::create([
+            'room_session_id' => $request->room_session_id,
+            'user_id' => Auth::user()->id,
+            'status' => 'pending',
+            'expires_at' => Carbon::now()->addMinutes(15),
+            'total_price' => $request->total_price
+        ]);
+
+        // lier les sièges
+        $reservation->seats()->attach($request->seat_ids);
+
+        return response()->json([
+            'message' => 'Reservation created',
+            'data' => $reservation
+        ]);
     }
 
     /**
@@ -64,7 +82,27 @@ class ReservationController extends Controller
         //
     }
 
-    public function updateAfterPayment(){
-        
+    public function updateAfterPayment(Reservation $reservation)
+    {
+        if ($reservation->user_id !== Auth::id()) {
+            return response()->json([
+                'message' => 'You are not allowed to update this reservation.',
+            ], 403);
+        }
+
+        $payment = $reservation->payment()->latest('id')->first();
+
+        if (!$payment instanceof Payment) {
+            return response()->json([
+                'message' => 'No payment found for this reservation.',
+            ], 404);
+        }
+
+        $reservation->syncStatusFromPayment($payment);
+
+        return response()->json([
+            'message' => 'Reservation status updated successfully.',
+            'reservation' => $reservation->load('payment'),
+        ], 200);
     }
 }
