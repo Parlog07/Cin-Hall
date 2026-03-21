@@ -32,8 +32,24 @@ class ReservationController extends Controller
      */
     public function store(StoreReservationRequest $request)
     {
-        // 1.Vérifier si sièges deja réservés
-        $alreadyReserved = Seat::whereIn('id', $request->seat_ids)
+
+        // 1.récupérer tous les sièges sélectionnés
+        $seatIds = $request->seat_ids;
+
+        // récupérer les sièges du DB
+        $seats = Seat::whereIn('id', $seatIds)->get();
+
+        // 2.ajouter automatiquement les partenaires des sièges couple
+        foreach ($seats as $seat) {
+            if ($seat->type === 'couple' && $seat->seat_id) {
+                if (!in_array($seat->seat_id, $seatIds)) {
+                    $seatIds[] = $seat->seat_id;
+                }
+            }
+        }
+        
+        // 3.Vérifier si sièges deja réservés
+        $alreadyReserved = Seat::whereIn('id', $seatIds)
             ->whereHas('reservations', function ($query) use ($request) {
                 $query->where('room_session_id', $request->room_session_id)
                 ->whereIn('status', ['pending', 'paid']);
@@ -46,7 +62,7 @@ class ReservationController extends Controller
             ], 400);
         }
 
-        // 2.Créer une réservation
+        // 4.Créer une réservation
         $reservation = Reservation::create([
             'room_session_id' => $request->room_session_id,
             'user_id' => Auth::user()->id,
@@ -55,8 +71,8 @@ class ReservationController extends Controller
             'total_price' => $request->total_price
         ]);
 
-        // 3.lier les sièges
-        $reservation->seats()->attach($request->seat_ids);
+        // 5.lier les sièges
+        $reservation->seats()->attach($seatIds);
 
         return response()->json([
             'message' => 'Reservation created',

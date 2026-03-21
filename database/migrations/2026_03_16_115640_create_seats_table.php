@@ -16,7 +16,6 @@ return new class extends Migration
             $table->integer('number') ;
             $table->enum('type' , ['normal' , 'couple' , 'VIP'])->default('normal') ;
             $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete() ;
-            // $table->foreignId('seat_id')->constrained('seats')->nullable() ;
             $table->foreignId('seat_id')->nullable()->constrained('seats')->nullOnDelete();
             $table->timestamps();
         });
