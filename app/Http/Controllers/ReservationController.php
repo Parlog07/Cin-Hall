@@ -63,4 +63,8 @@ class ReservationController extends Controller
     {
         //
     }
+
+    public function updateAfterPayment(){
+        
+    }
 }
