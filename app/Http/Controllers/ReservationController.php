@@ -62,7 +62,7 @@ class ReservationController extends Controller
             ], 400);
         }
 
-        // 4.Créer une réservation
+        // 4.Créer une réservation 
         $reservation = Reservation::create([
             'room_session_id' => $request->room_session_id,
             'user_id' => Auth::user()->id,
