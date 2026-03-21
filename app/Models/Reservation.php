@@ -12,6 +12,25 @@ class Reservation extends Model
 
     protected $fillable = ['status', 'expires_at', 'total_price', 'room_session_id', 'user_id'];
 
+    public function syncStatusFromPayment(?Payment $payment = null): self
+    {
+        $payment ??= $this->payment()->latest('id')->first();
+
+        if (!$payment) {
+            return $this;
+        }
+
+        $status = $payment->payment_status === 'payed' ? 'paid' : 'pending';
+
+        if ($this->status !== $status) {
+            $this->update([
+                'status' => $status,
+            ]);
+        }
+
+        return $this->refresh();
+    }
+
     public function seats()
     {
         return $this->belongsToMany(Seat::class, 'reservation_seat', 'reservation_id', 'seat_id')

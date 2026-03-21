@@ -31,6 +31,7 @@ Route::middleware('jwt')->group(function () {
     Route::get('/payments', [PaymentController::class, 'index']);
     Route::post('/payments', [PaymentController::class, 'store']);
     Route::get('/payments/{payment}', [PaymentController::class, 'show']);
+    Route::patch('/reservations/{reservation}/payment-status', [ReservationController::class, 'updateAfterPayment']);
     
     // testing ...
     Route::apiResource('seats', SeatController::class);

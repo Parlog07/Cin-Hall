@@ -78,12 +78,12 @@ class PaymentController extends Controller
                 'reservation_id' => $reservation->id,
             ]);
 
-            $reservation->update([
-                'status' => 'paid',
-            ]);
+            $reservation->syncStatusFromPayment($payment);
 
             return $payment;
         });
+
+        $reservation->refresh();
 
         $this->createTickets($reservation);
 
