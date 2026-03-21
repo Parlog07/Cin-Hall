@@ -10,7 +10,7 @@ class Reservation extends Model
     /** @use HasFactory<\Database\Factories\ReservationFactory> */
     use HasFactory;
 
-    protected $fillable = ['status', 'expires_at', 'total_price', 'session_id', 'user_id'];
+    protected $fillable = ['status', 'expires_at', 'total_price', 'room_session_id', 'user_id'];
 
     public function seats()
     {

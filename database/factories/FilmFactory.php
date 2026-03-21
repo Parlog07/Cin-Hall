@@ -24,9 +24,7 @@ class FilmFactory extends Factory
             'actors' => $this->faker->name() . ', ' . $this->faker->name(),
             'duration_minutes' => $this->faker->numberBetween(80, 180),
             'minimum_age' => $this->faker->randomElement([0, 7, 13, 16, 18]),
-            'age' => $this->faker->randomElement(['G', 'PG', 'PG-13', 'R', 'NC-17']),
             'trailer_url' => $this->faker->url(),
-            'image' => $this->faker->imageUrl(640, 480, 'movies', true),
         ];
     }
 }

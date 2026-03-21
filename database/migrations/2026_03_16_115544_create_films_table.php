@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('actors')->nullable();
             $table->integer('duration_minutes');
             $table->integer('minimum_age')->default(13);
-            $table->string('age');
             $table->string('trailer_url');
             $table->timestamps();
             // remove nullable from image and trailer url plz

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
 use App\Models\Reservation;
+use App\Models\Seat;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,6 +32,21 @@ class ReservationController extends Controller
      */
     public function store(StoreReservationRequest $request)
     {
+        // 1.Vérifier si sièges deja réservés
+        $alreadyReserved = Seat::whereIn('id', $request->seat_ids)
+            ->whereHas('reservations', function ($query) use ($request) {
+                $query->where('room_session_id', $request->room_session_id)
+                ->whereIn('status', ['pending', 'paid']);
+            })
+            ->exists();
+
+        if ($alreadyReserved) {
+            return response()->json([
+                'message' => 'One or more seats already reserved'
+            ], 400);
+        }
+
+        // 2.Créer une réservation
         $reservation = Reservation::create([
             'room_session_id' => $request->room_session_id,
             'user_id' => Auth::user()->id,
@@ -39,7 +55,7 @@ class ReservationController extends Controller
             'total_price' => $request->total_price
         ]);
 
-        // lier les sièges
+        // 3.lier les sièges
         $reservation->seats()->attach($request->seat_ids);
 
         return response()->json([
@@ -67,9 +83,31 @@ class ReservationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateReservationRequest $request, Reservation $reservation)
+    public function update(UpdateReservationRequest $request, $id)
     {
-        //
+        $reservation = Reservation::findOrFail($id);
+
+        if (in_array($reservation->status, ['paid', 'expired'])) {
+            return response()->json([
+                'message' => 'Cannot modify this reservation'
+            ], 403);
+        }
+
+        //modifier les sieges
+        if ($request->has('seat_ids')) {
+            $reservation->seats()->sync($request->seat_ids);
+        }
+
+        //modifier prix
+        if ($request->has('total_price')) {
+            $reservation->update([
+                'total_price' => $request->total_price
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Reservation update'
+        ]);
     }
 
     /**
@@ -78,5 +116,25 @@ class ReservationController extends Controller
     public function destroy(Reservation $reservation)
     {
         //
+    }
+
+    //Annuler une réservation
+    public function cancel($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+
+        if ($reservation->status === 'paid') {
+            return response()->json([
+                'message' => 'Cannot cancel a paid reservation'
+            ]);
+        }
+
+        $reservation->update([
+            'status' => 'cancelled'
+        ]);
+
+        return response()->json([
+            'message' => 'Reservation cancelled'
+        ]);
     }
 }

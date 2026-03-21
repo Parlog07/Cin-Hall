@@ -1,4 +1,4 @@
--- Active: 1773835862932@@localhost@5432@cinehall
+-- Active: 1768312369187@@127.0.0.1@5432@cin_hall
 
 CREATE DATABASE cinehall;
 
@@ -8,7 +8,9 @@ DROP DATABASE cinehall;
 -- Replace the email with your real admin account.
 UPDATE users
 SET is_admin = true
-WHERE email = 'admin@example.com';
+WHERE email = 'amine@gmail.com';
+
+SELECT * from seats;
 
 -- Mock films for API tests
 INSERT INTO films (

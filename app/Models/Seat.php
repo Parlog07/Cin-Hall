@@ -10,7 +10,7 @@ class Seat extends Model
     /** @use HasFactory<\Database\Factories\SeatFactory> */
     use HasFactory;
 
-    protected $fillable = [ 'number' , 'type' ,'room_id' ] ;
+    protected $fillable = [ 'number' , 'type' ,'room_id', 'seat_id' ] ;
 
     public function reservations(){
         return $this->belongsToMany(Reservation::class , 'reservation_seat' , 'seat_id' , 'reservation_id')

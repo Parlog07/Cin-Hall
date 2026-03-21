@@ -12,7 +12,7 @@ class UpdateReservationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,9 @@ class UpdateReservationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'seat_ids' => 'sometimes|array',
+            'seat_ids.*' => 'exists:seats,id',
+            'total_price' => 'sometimes|numeric|min:0',
         ];
     }
 }
