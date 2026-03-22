@@ -130,20 +130,61 @@ class ReservationController extends Controller
             ], 403);
         }
 
-        //modifier les sieges
-        if ($request->has('seat_ids')) {
-            $reservation->seats()->sync($request->seat_ids);
+        // 1.récupérer tous les sièges sélectionnés
+        $seatIds = $request->seat_ids;
+
+        // 2.récupérer les sièges du DB
+        $seats = Seat::whereIn('id', $seatIds)->get();
+
+        // 3.ajouter automatiquement les partenaires des sièges couple
+        foreach ($seats as $seat) {
+            if ($seat->type === 'couple' && $seat->seat_id) {
+                if (!in_array($seat->seat_id, $seatIds)) {
+                    $seatIds[] = $seat->seat_id;
+                    $seats->push(Seat::find($seat->seat_id)); //  objet pour le prix
+                }
+            }
+        }
+        
+
+        // 4.Vérifier que les sièges sont disponibles
+        $alreadyReserved = Seat::whereIn('id', $seatIds)
+            ->whereHas('reservations', function ($query) use ($reservation) {
+                $query->where('room_session_id', $reservation->room_session_id)
+                      ->whereIn('status', ['pending', 'paid'])
+                      ->where('reservations.id', '!=', $reservation->id); // ignorer cette réservation
+            })
+            ->exists();
+
+        if ($alreadyReserved) {
+            return response()->json([
+                'message' => 'One or more seats are already reserved'
+            ], 400);
         }
 
-        //modifier prix
-        if ($request->has('total_price')) {
-            $reservation->update([
-                'total_price' => $request->total_price
-            ]);
+        // 5.Calculer automatiquement le prix
+        $totalPrice = 0;
+        foreach ($seats as $seat) {
+            if ($seat->type === 'VIP') {
+                $totalPrice += 100;
+            } elseif ($seat->type === 'couple') {
+                $totalPrice += 150; 
+            } else {
+                $totalPrice += 50;
+            }
         }
+
+        // 6.Mettre à jour la réservation
+        $reservation->update([
+            'total_price' => $totalPrice
+            ]);
+        
+        // 7.Mettre à jour les sièges
+        $reservation->seats()->sync($seatIds);
 
         return response()->json([
-            'message' => 'Reservation update'
+            'message' => 'Reservation update',
+            'data' => $reservation->load('seats')
         ]);
     }
 
