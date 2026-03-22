@@ -16,7 +16,13 @@ class ReservationController extends Controller
      */
     public function index()
     {
-        //
+        $reservations = Reservation::get();
+
+        return response()->json([
+            'data' => $reservations
+        ]);
+
+
     }
 
     /**
@@ -44,6 +50,7 @@ class ReservationController extends Controller
             if ($seat->type === 'couple' && $seat->seat_id) {
                 if (!in_array($seat->seat_id, $seatIds)) {
                     $seatIds[] = $seat->seat_id;
+                    $seats->push(Seat::find($seat->seat_id)); //  objet pour le prix
                 }
             }
         }
@@ -62,13 +69,27 @@ class ReservationController extends Controller
             ], 400);
         }
 
+        // 4.calcul du prix total
+        $totalPrice = 0;
+        foreach($seats as $seat){
+            if ($seat->type === 'VIP') {
+                $totalPrice += 100;
+            }
+            elseif ($seat->type === 'couple') {
+                $totalPrice += 150;
+            }
+            else {
+                $totalPrice += 50;
+            }
+        }
+
         // 4.Créer une réservation 
         $reservation = Reservation::create([
             'room_session_id' => $request->room_session_id,
             'user_id' => Auth::user()->id,
             'status' => 'pending',
             'expires_at' => Carbon::now()->addMinutes(15),
-            'total_price' => $request->total_price
+            'total_price' => $totalPrice
         ]);
 
         // 5.lier les sièges
@@ -143,6 +164,12 @@ class ReservationController extends Controller
             return response()->json([
                 'message' => 'Cannot cancel a paid reservation'
             ]);
+        }
+
+        if ($reservation->status === 'expired') {
+            return response()->json([
+                'message' => 'Reservation already expired'
+            ], 400);
         }
 
         $reservation->update([

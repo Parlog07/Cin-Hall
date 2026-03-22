@@ -20,7 +20,13 @@ class Room extends Model
             ->withTimestamps() ;
     }
 
-    public function seats(){
+    public function roomSessions()
+    {
+        return $this->hasMany(Session::class);
+    }
+
+    public function seats()
+    {
         return $this->hasMany(Seat::class) ;
     }
 }
