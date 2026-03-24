@@ -10,7 +10,7 @@ class Ticket extends Model
     /** @use HasFactory<\Database\Factories\TicketFactory> */
     use HasFactory;
 
-    protected $fillable = ['qr_code' , 'pdf_path' , 'resevation_id' , 'payment_id' ];
+    protected $fillable = ['qr_code' , 'pdf_path' , 'reservation_id' , 'payment_id' ];
 
     public function reservation(){
         return $this->belongsTo(Reservation::class) ;

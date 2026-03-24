@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
+use App\Models\Payment;
 use App\Models\Reservation;
 use App\Models\Seat;
 use Illuminate\Support\Carbon;
@@ -220,5 +221,29 @@ class ReservationController extends Controller
         return response()->json([
             'message' => 'Reservation cancelled'
         ]);
+    }
+    
+    public function updateAfterPayment(Reservation $reservation)
+    {
+        if ($reservation->user_id !== Auth::id()) {
+            return response()->json([
+                'message' => 'You are not allowed to update this reservation.',
+            ], 403);
+        }
+
+        $payment = $reservation->payment()->latest('id')->first();
+
+        if (!$payment instanceof Payment) {
+            return response()->json([
+                'message' => 'No payment found for this reservation.',
+            ], 404);
+        }
+
+        $reservation->syncStatusFromPayment($payment);
+
+        return response()->json([
+            'message' => 'Reservation status updated successfully.',
+            'reservation' => $reservation->load('payment'),
+        ], 200);
     }
 }

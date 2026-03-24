@@ -13,9 +13,15 @@ class SessionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Session::query()->get());
+
+        $query = SessionQuery::base();
+        if ($request->filled('type'))
+            {
+                $query = SessionQuery::applyFilters($query, $request->query('type'));
+            }
+        return response()->json($query->get());
     }
 
     /**

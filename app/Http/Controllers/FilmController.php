@@ -16,6 +16,12 @@ class FilmController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -41,6 +47,12 @@ class FilmController extends Controller
 
     public function update(Request $request, Film $film)
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
@@ -61,6 +73,12 @@ class FilmController extends Controller
 
     public function destroy(Film $film)
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
         $film->delete();
 
         return response()->json([

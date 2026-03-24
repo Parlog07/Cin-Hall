@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('qr_code');
             $table->string('pdf_path');
-            $table->foreignId('resevation_id')->constrained('reservations')->nullOnDelete() ;
+            $table->foreignId('reservation_id')->constrained('reservations')->nullOnDelete() ;
             $table->foreignId('payment_id')->constrained('payments')->nullOnDelete() ;
             $table->timestamps();
         });
